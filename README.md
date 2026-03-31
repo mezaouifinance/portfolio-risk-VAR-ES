@@ -58,9 +58,4 @@ portfolio-risk-var-backtesting/
 ├── figures/
 ├── README.md
 ├── requirements.txt
-└── .gitignore# portfolio-risk-var-backtesting
-# portfolio-risk-var-backtesting
-# portfolio-risk-VAR-ES
-# portfolio-risk-VAR-ES
-# portfolio-risk-VAR-ES
-# portfolio-risk-VAR-ES
+└── .gitignore
