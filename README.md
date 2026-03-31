@@ -25,22 +25,29 @@ Exemple de pondération :
 - 20 % TLT
 - 10 % GLD
 
-## Méthodologie
+### Distribution des rendements du portefeuille
 
-### 1. Préparation des données
-- téléchargement des prix historiques via `yfinance`
-- calcul des rendements journaliers
-- construction des rendements du portefeuille
+![Distribution des rendements du portefeuille](figures/returns_distribution.png)
 
-### 2. Mesures de risque
-- **VaR historique** : estimation empirique du quantile de perte
-- **VaR paramétrique** : estimation sous hypothèse de normalité
-- **Expected Shortfall** : perte moyenne au-delà du seuil de VaR
+La distribution des rendements est centrée autour de 0, ce qui signifie que les variations journalières du portefeuille sont le plus souvent modestes.  
+La majorité des observations se concentre près de 0, mais quelques valeurs plus extrêmes apparaissent dans les queues de distribution.  
+Cela justifie l’utilisation de mesures comme la VaR et l’Expected Shortfall pour quantifier le risque de pertes extrêmes.
 
-### 3. Backtesting
-- estimation de la VaR sur fenêtre glissante de 252 jours
-- comparaison avec les pertes réalisées
-- calcul du taux d’exceptions
+### Backtesting de la VaR historique
+
+![Backtesting de la VaR historique](figures/backtest_historical_var.png)
+
+Ce graphique compare les pertes réalisées à la VaR historique estimée sur fenêtre glissante.  
+Les points d’exception correspondent aux jours où la perte réalisée dépasse le seuil de VaR.  
+Leur fréquence restant proche du niveau théorique attendu, la VaR historique fournit ici une estimation globalement cohérente du risque.
+
+### Backtesting de la VaR paramétrique
+
+![Backtesting de la VaR paramétrique](figures/backtest_parametric_var.png)
+
+Ce graphique montre le backtesting de la VaR paramétrique sous hypothèse de normalité.  
+Comme son niveau est proche de celui de la VaR historique, les deux approches donnent ici des résultats voisins sur l’échantillon étudié.  
+Le taux d’exceptions observé suggère que cette approche fournit elle aussi une estimation globalement acceptable du risque.
 
 ## Structure du projet
 
