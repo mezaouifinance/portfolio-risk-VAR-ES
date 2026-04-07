@@ -21,7 +21,7 @@ def rolling_var_backtest(
         elif method == "parametric":
             var_estimate = parametric_var(train_sample, alpha=alpha)
         else:
-            raise ValueError("Méthode non reconnue. Utilisez 'historical' ou 'parametric'.")
+            raise ValueError(f"Unknown method '{method}'. Use 'historical' or 'parametric'.")
 
         var_values.append(var_estimate)
         realized_returns.append(realized)
