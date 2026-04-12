@@ -1,68 +1,124 @@
-# Portfolio Risk – VaR, Expected Shortfall and Backtesting
+![CI](https://github.com/mezaouifinance/portfolio-risk-VAR-ES/actions/workflows/ci.yml/badge.svg)
 
-Projet Python de mesure du risque de marché appliqué à un portefeuille financier diversifié.
+# Portfolio Risk — VaR, Expected Shortfall & Backtesting
 
-## Objectif
+Python project for market risk measurement applied to a diversified ETF portfolio.
 
-L’objectif du projet est de comparer plusieurs mesures de risque sur un portefeuille d’actifs financiers :
-- Historical Value at Risk (VaR)
-- Parametric Value at Risk (VaR)
-- Expected Shortfall (ES)
+---
 
-Le projet inclut également un backtesting sur fenêtre glissante afin d’évaluer la robustesse des estimations de VaR.
+## What this project does
 
-## Univers étudié
+Implements and compares three risk measures at 95% confidence level:
 
-Le portefeuille est composé de quatre ETF représentatifs de différentes classes d’actifs :
-- SPY
-- QQQ
-- TLT
-- GLD
+| Measure | Method | Assumption |
+|---------|--------|------------|
+| Historical VaR | Empirical quantile | Distribution-free |
+| Parametric VaR | Normal distribution | Gaussian returns |
+| Expected Shortfall (ES) | Mean of tail losses | Distribution-free |
 
-Exemple de pondération :
-- 40 % SPY
-- 30 % QQQ
-- 20 % TLT
-- 10 % GLD
+Includes a **rolling-window backtest** to assess VaR accuracy over time.
 
-### Distribution des rendements du portefeuille
+---
 
-![Distribution des rendements du portefeuille](figures/returns_distribution.png)
+## Portfolio
 
-La distribution des rendements est centrée autour de 0, ce qui signifie que les variations journalières du portefeuille sont le plus souvent modestes.  
-La majorité des observations se concentre près de 0, mais quelques valeurs plus extrêmes apparaissent dans les queues de distribution.  
-Cela justifie l’utilisation de mesures comme la VaR et l’Expected Shortfall pour quantifier le risque de pertes extrêmes.
+Four ETFs covering different asset classes:
 
-### Backtesting de la VaR historique
+| Ticker | Asset class | Weight |
+|--------|-------------|--------|
+| SPY | US equities | 40% |
+| QQQ | Tech / Nasdaq | 30% |
+| TLT | Long-term bonds | 20% |
+| GLD | Gold | 10% |
 
-![Backtesting de la VaR historique](figures/backtest_historical_var.png)
+---
 
-Ce graphique compare les pertes réalisées à la VaR historique estimée sur fenêtre glissante.  
-Les points d’exception correspondent aux jours où la perte réalisée dépasse le seuil de VaR.  
-Leur fréquence restant proche du niveau théorique attendu, la VaR historique fournit ici une estimation globalement cohérente du risque.
+## Installation
 
-### Backtesting de la VaR paramétrique
+```bash
+git clone https://github.com/mezaouifinance/portfolio-risk-VAR-ES.git
+cd portfolio-risk-VAR-ES
+pip install -r requirements.txt
+```
 
-![Backtesting de la VaR paramétrique](figures/backtest_parametric_var.png)
+---
 
-Ce graphique montre le backtesting de la VaR paramétrique sous hypothèse de normalité.  
-Comme son niveau est proche de celui de la VaR historique, les deux approches donnent ici des résultats voisins sur l’échantillon étudié.  
-Le taux d’exceptions observé suggère que cette approche fournit elle aussi une estimation globalement acceptable du risque.
+## Usage
 
-## Structure du projet
+Open the notebook:
 
-```text
-portfolio-risk-var-backtesting/
-│
-├── notebooks/
-│   └── risk_analysis.ipynb
+```bash
+jupyter notebook notebook/risk_analysis.ipynb
+```
+
+Or use the modules directly:
+
+```python
+from src.data_loader import load_prices, compute_returns
+from src.portfolio import portfolio_returns
+from src.risk_metrics import historical_var, parametric_var, expected_shortfall
+from src.backtesting import rolling_var_backtest, exception_rate
+
+prices  = load_prices(["SPY", "QQQ", "TLT", "GLD"], start="2020-01-01")
+returns = compute_returns(prices)
+pf      = portfolio_returns(returns, weights=[0.4, 0.3, 0.2, 0.1])
+
+print(f"Historical VaR (95%): {historical_var(pf):.2%}")
+print(f"Parametric VaR (95%): {parametric_var(pf):.2%}")
+print(f"Expected Shortfall:   {expected_shortfall(pf):.2%}")
+
+backtest = rolling_var_backtest(pf, window=252, method="historical")
+print(f"Exception rate: {exception_rate(backtest):.2%}  (expected ~5%)")
+```
+
+---
+
+## Run tests
+
+```bash
+pip install pytest
+pytest tests/
+```
+
+---
+
+## Results
+
+### Return distribution
+
+![Return distribution](figures/returns_distribution.png)
+
+Returns are centered near zero, with fat tails that justify using VaR and ES over simple standard deviation.
+
+### Backtesting — Historical VaR
+
+![Backtest historical VaR](figures/backtest_historical_var.png)
+
+Red dots mark exception days (realized loss > VaR estimate). The exception rate stays near the expected 5%, confirming the model's calibration.
+
+### Backtesting — Parametric VaR
+
+![Backtest parametric VaR](figures/backtest_parametric_var.png)
+
+The parametric model (Gaussian assumption) produces results close to the historical approach on this sample, though it may underestimate tail risk in stress periods.
+
+---
+
+## Project structure
+
+```
+portfolio-risk-VAR-ES/
 ├── src/
-│   ├── __init__.py
-│   ├── data_loader.py
-│   ├── portfolio.py
-│   ├── risk_metrics.py
-│   └── backtesting.py
+│   ├── data_loader.py      # yfinance download + return computation
+│   ├── portfolio.py        # weighted portfolio return series
+│   ├── risk_metrics.py     # VaR (hist & param), Expected Shortfall
+│   └── backtesting.py      # rolling-window VaR backtest
+├── tests/
+│   └── test_risk_metrics.py
+├── notebook/
+│   └── risk_analysis.ipynb
 ├── figures/
-├── README.md
 ├── requirements.txt
-└── .gitignore
+├── .gitignore
+└── .github/workflows/ci.yml
+```
