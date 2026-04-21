@@ -122,3 +122,25 @@ portfolio-risk-VAR-ES/
 ├── .gitignore
 └── .github/workflows/ci.yml
 ```
+
+---
+
+## Risk decomposition
+
+### Correlation matrix
+
+![Risk decomposition](figures/risk_decomposition.png)
+
+The left panel shows the Pearson correlation matrix across the four ETFs. SPY and QQQ are highly correlated (~0.85), while TLT and GLD provide meaningful diversification. The right panel decomposes the portfolio VaR into per-asset contributions — SPY and QQQ together account for over 80% of total risk despite representing 70% of the weight, driven by both higher volatility and correlation.
+
+---
+
+## Modules
+
+| Module | Description |
+|--------|-------------|
+| `src/data_loader.py` | yfinance download + log-return computation |
+| `src/portfolio.py` | Weighted portfolio return series |
+| `src/risk_metrics.py` | Historical VaR, Parametric VaR, Expected Shortfall |
+| `src/backtesting.py` | Rolling-window backtest, Kupiec POF test |
+| `src/risk_decomp.py` | Correlation matrix, component VaR, diversification ratio |
